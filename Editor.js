@@ -1,13 +1,14 @@
 class Editor {
   constructor (wrapper, content, width, height) {
-    this.watcher = {};
+    this.watchers = {};
     this.wrapper = wrapper;
     this.content = content;
     this.wrapCtx = wrapper.getContext('2d');
     this.contCtx = content.getContext('2d');
     this.contWidth = width;
     this.contHeight = height;
-    
+    this.instantiation = [];
+
     // 拖选框 鼠标点击坐标
     this.startX = null;
     this.startY = null;
@@ -16,6 +17,8 @@ class Editor {
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
+    this.handleClearRect = this.handleClearRect.bind(this);
+    this.handleNewInstantiation = this.handleNewInstantiation.bind(this);
   }
 
   /**
@@ -40,6 +43,7 @@ class Editor {
     contCtx.fillRect(contX, contY, contWidth, contHeight);
 
     wrapper.addEventListener('mousedown', this.handleMouseDown);
+    this._subscribe('new', this.handleNewInstantiation);
   }
 
   /**
@@ -80,15 +84,15 @@ class Editor {
     document.removeEventListener('mousemove', this.handleMouseMove);
   }
 
-  _publish(ev, data) {
+  _publish(event, data) {
     if (this.watchers[event] && this.watchers[event].length) {
       this.watchers[event].forEach(cb => cb(data));
     }
   }
 
-  _subscribe(ev, callback) {
+  _subscribe(event, callback) {
     this.watchers[event] = this.watchers[event] || [];
-    this.watchers[event].push(cb);
+    this.watchers[event].push(callback);
   }
 
   ubsubscribe(event = null, cb = null) {
@@ -101,5 +105,21 @@ class Editor {
     } else {
       this.watchers = {};
     }
+  }
+
+  handleClearRect(instance) {
+    // 接收到正在移动的图片实例对象
+    // 清除画布
+    console.log(this.instantiation);
+  }
+
+  /**
+   * 
+   * @param {*object} transformable 
+   * 实例化的transformable对象
+   */
+  handleNewInstantiation(transformable) {
+    console.log(transformable);
+    this.instantiation.push(transformable);
   }
 }
