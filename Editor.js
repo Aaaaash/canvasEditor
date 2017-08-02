@@ -12,6 +12,10 @@ class Editor {
     // 拖选框 鼠标点击坐标
     this.startX = null;
     this.startY = null;
+    this.contX = null;
+    this.contY = null;
+    this.wrapWidth = null;
+    this.wrapHeight = null;
 
     this._init = this._init.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -19,6 +23,7 @@ class Editor {
     this.handleMouseUp = this.handleMouseUp.bind(this);
     this.handleClearRect = this.handleClearRect.bind(this);
     this.handleNewInstantiation = this.handleNewInstantiation.bind(this);
+    this.handleUpdateInstantiation = this.handleUpdateInstantiation.bind(this);
   }
 
   /**
@@ -31,7 +36,10 @@ class Editor {
     const { contWidth, contHeight, contCtx, wrapper, content } = this;
     const contX = w / 2 - contWidth / 2;
     const contY = h / 2 - contHeight / 2;
-
+    this.contX = contX;
+    this.contY = contY;
+    this.wrapWidth = w;
+    this.wrapHeight = h;
     wrapper.width = w;
     wrapper.height = h;
     content.width = w;
@@ -44,6 +52,7 @@ class Editor {
 
     wrapper.addEventListener('mousedown', this.handleMouseDown);
     this._subscribe('new', this.handleNewInstantiation);
+    this._subscribe('update', this.handleUpdateInstantiation);
   }
 
   /**
@@ -110,7 +119,8 @@ class Editor {
   handleClearRect(instance) {
     // 接收到正在移动的图片实例对象
     // 清除画布
-    console.log(this.instantiation);
+    // console.log(this.instantiation);
+    // this.contCtx.clearRect(this.contX, this.contY, this.contWidth, this.contHeight);
   }
 
   /**
@@ -119,7 +129,25 @@ class Editor {
    * 实例化的transformable对象
    */
   handleNewInstantiation(transformable) {
-    console.log(transformable);
     this.instantiation.push(transformable);
+  }
+
+  handleUpdateInstantiation(data) {
+    const { id, movex, movey } = data;
+    const { contCtx, contWidth, contHeight, contX, contY, wrapWidth, wrapHeight, instantiation } = this;
+    contCtx.clearRect(0, 0, contentCanvas.width, contentCanvas.height);
+    contCtx.fillStyle = '#DCDCDC';
+    contCtx.fillRect(0, 0, wrapWidth, wrapHeight);
+    contCtx.fillStyle = '#FFF';
+    contCtx.fillRect(contX, contY, contWidth, contHeight);
+    instantiation.map((v) => {
+      if (v.id === id) {
+        v.moveX = movex;
+        v.moveY = movey;
+      }
+      contCtx.drawImage(v.image, v.moveX, v.moveY, v.image.width * v.scale, v.image.height * v.scale);
+      contCtx.strokeStyle = 'rgba(227,212,169,0.8)';
+      contCtx.strokeRect(v.moveX, v.moveY, v.image.width * v.scale, v.image.height * v.scale);
+    });
   }
 }

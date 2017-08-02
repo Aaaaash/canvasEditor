@@ -9,6 +9,9 @@ class Transformable {
     this.clienty = null;
     this.wrapper = wrapper;
     this.editor = editor;
+    this.moveX = coordinate.x;
+    this.moveY = coordinate.y;
+    this.id = guid();
 
     this._init = this._init.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -19,9 +22,9 @@ class Transformable {
   _init() {
     this.image.onload = () => {
       const { x, y } = this.coordinate;
-      this.ctx.drawImage(image, x, y, image.width * this.scale, image.height * this.scale);
-      this.ctx.strokeStyle = 'rgba(227,212,169,0.5)';
-      this.ctx.strokeRect(x, y, image.width * this.scale, image.height * this.scale);
+      this.ctx.drawImage(this.image, x, y, this.image.width * this.scale, this.image.height * this.scale);
+      this.ctx.strokeStyle = 'rgba(227,212,169,0.8)';
+      this.ctx.strokeRect(x, y, this.image.width * this.scale, this.image.height * this.scale);
 
       this.wrapper.addEventListener('mousedown', this.handleMouseDown);
       this.editor._publish('new', this);
@@ -33,7 +36,7 @@ class Transformable {
    * @param {*object} e 拖拽图片鼠标点击事件 
    */
   handleMouseDown(e) {
-    const { coordinate, scale, editor } = this;
+    const { coordinate, scale, editor, image } = this;
     this.clientx = e.clientX;
     this.clienty = e.clientY;
     if (
@@ -57,12 +60,13 @@ class Transformable {
      */
     const movex = this.coordinate.x - (this.clientx - e.clientX);
     const movey = this.coordinate.y - (this.clienty - e.clientY);
-    this.ctx.clearRect(this.coordinate.x, this.coordinate.y, image.width * this.scale, image.height * this.scale);
-    this.ctx.clearRect(movex, movey, image.width * this.scale, image.height * this.scale);
-    this.ctx.drawImage(image, movex, movey, image.width * this.scale, image.height * this.scale);
-    this.ctx.strokeStyle = 'rgba(227,212,169,0.5)';
-    this.ctx.strokeRect(movex, movey, image.width * this.scale, image.height * this.scale);
     this.editor._publish('move', this);
+    this.editor._publish('update', {id: this.id, movex, movey});
+    // this.ctx.clearRect(this.coordinate.x, this.coordinate.y, image.width * this.scale, image.height * this.scale);
+    // this.ctx.clearRect(movex, movey, image.width * this.scale, image.height * this.scale);
+    // this.ctx.drawImage(image, movex, movey, image.width * this.scale, image.height * this.scale);
+    // this.ctx.strokeStyle = 'rgba(227,212,169,0.5)';
+    // this.ctx.strokeRect(movex, movey, image.width * this.scale, image.height * this.scale);
     document.addEventListener('mouseup', () => {
       this.coordinate.x = movex;
       this.coordinate.y = movey;

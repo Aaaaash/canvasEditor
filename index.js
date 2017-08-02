@@ -18,10 +18,18 @@ const editor = new Editor(wrapperCanvas, contentCanvas, width, height);
 editor._init(conWidth, conHeight, color);
 
 /**
- * 实例化一张图片
+ * 实例化图片
  */
 
-const image = new Image();
-image.src = 'colo.png';
-const tranable = new Transformable(contentCanvas, image, { x: 200, y: 200 }, 0.5, wrapperCanvas, editor);
-tranable._init();
+const images = [
+  'colo.png',
+  'boom.png',
+  'cup.png',
+]
+
+images.forEach((v, i) => {
+  const image = new Image();
+  image.src = v;
+  const tranable = new Transformable(contentCanvas, image, { x: 100 + 100 * i, y: 100 }, 0.5, wrapperCanvas, editor);
+  tranable._init();
+});
