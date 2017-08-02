@@ -18,6 +18,12 @@ class Editor {
     this.handleMouseUp = this.handleMouseUp.bind(this);
   }
 
+  /**
+   * 
+   * @param {*number} w 宽度
+   * @param {*number} h 高度
+   * 初始化canvas内容区域，指定宽高
+   */
   _init(w, h) {
     const { contWidth, contHeight, contCtx, wrapper, content } = this;
     const contX = w / 2 - contWidth / 2;
