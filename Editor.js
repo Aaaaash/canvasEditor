@@ -1,5 +1,6 @@
-class Editor {
+class Editor extends MouseEnterArea {
   constructor (wrapper, content, width, height) {
+    super(wrapper);
     this.watchers = {};
     this.wrapper = wrapper;
     this.content = content;
@@ -138,8 +139,45 @@ class Editor {
         v.moveY = movey;
       }
       contCtx.drawImage(v.image, v.moveX, v.moveY, v.image.width * v.scale, v.image.height * v.scale);
-      contCtx.strokeStyle = 'rgba(227,212,169,0.8)';
-      contCtx.strokeRect(v.moveX, v.moveY, v.image.width * v.scale, v.image.height * v.scale);
     });
+  }
+
+  // 辅助线
+  storkeLine(direction, color = '#ccc') {
+    const { wrapWidth, contWidth, wrapHeight, contHeight, wrapCtx } = this;
+    wrapCtx.strokeStyle = color;
+    wrapCtx.lineWidth = 1;
+    switch (direction) {
+      case 'left':
+        wrapCtx.beginPath();
+        wrapCtx.moveTo(wrapWidth / 2 - contWidth / 2, 0);
+        wrapCtx.lineTo(wrapWidth / 2 - contWidth / 2, wrapHeight);
+        wrapCtx.stroke();
+        break;
+      case 'right':
+        wrapCtx.beginPath();
+        wrapCtx.moveTo(contWidth + (wrapWidth - contWidth) / 2, 0);
+        wrapCtx.lineTo(contWidth + (wrapWidth - contWidth) / 2, wrapHeight);
+        wrapCtx.stroke();
+        break;
+      case 'top':
+        wrapCtx.beginPath();
+        wrapCtx.moveTo(0, wrapHeight / 2 - contHeight / 2);
+        wrapCtx.lineTo(wrapWidth, wrapHeight / 2 - contHeight / 2);
+        wrapCtx.stroke();
+        break;
+      case 'bottom':
+        wrapCtx.beginPath();
+        wrapCtx.moveTo(0, wrapHeight / 2 + contHeight / 2);
+        wrapCtx.lineTo(wrapWidth, wrapHeight / 2 + contHeight / 2);
+        wrapCtx.stroke();
+        break;
+      default:
+        return;
+    }
+  }
+
+  clearStorke(direction) {
+    this.storkeLine(direction, '#DCDCDC');
   }
 }

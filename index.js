@@ -12,7 +12,7 @@ const height = 400;
 const container = document.querySelector('#container');
 const conWidth = container.offsetWidth;
 const conHeight = container.offsetHeight;
-const color = '#DCDCDC';
+const color = '#333';
 
 const editor = new Editor(wrapperCanvas, contentCanvas, width, height);
 editor._init(conWidth, conHeight, color);
@@ -31,6 +31,7 @@ images.forEach((v, i) => {
   const image = new Image();
   image.src = v;
   const tranable = new Transformable(contentCanvas, image, { x: 100 + 100 * i, y: 100 }, 0.5, wrapperCanvas, editor);
+  console.log(tranable);
   tranable._init();
   const title = document.createElement('p');
   document.body.appendChild(title);

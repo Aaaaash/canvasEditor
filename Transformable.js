@@ -5,28 +5,28 @@ class Transformable {
     this.image = image;
     this.coordinate = coordinate;
     this.scale = scale;
-    this.clientx = null;
-    this.clienty = null;
     this.wrapper = wrapper;
     this.editor = editor;
     this.moveX = coordinate.x;
     this.moveY = coordinate.y;
-    this.id = guid();
+    this.clientx = null;
+    this.clienty = null;
+    this.width = null;
+    this.height = null;
     this.onChange = null;
+    this.id = guid();
 
     this._init = this._init.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
-    this.handleClearRect = this.handleClearRect.bind(this);
   }
 
   _init() {
     this.image.onload = () => {
       const { x, y } = this.coordinate;
       this.ctx.drawImage(this.image, x, y, this.image.width * this.scale, this.image.height * this.scale);
-      this.ctx.strokeStyle = 'rgba(227,212,169,0.8)';
-      this.ctx.strokeRect(x, y, this.image.width * this.scale, this.image.height * this.scale);
-
+      this.width = this.image.width * this.scale;
+      this.height = this.image.height * this.scale;
       this.wrapper.addEventListener('mousedown', this.handleMouseDown);
       this.editor._publish('new', this);
     }
@@ -44,7 +44,6 @@ class Transformable {
       (this.clientx >= coordinate.x && this.clientx <= image.width * scale + coordinate.x)
       &&
       (this.clienty >= coordinate.y && this.clienty <= image.height * scale + coordinate.y)) {
-      this.editor._subscribe('move', this.handleClearRect);
       this.editor._subscribe('change', this.onChange);
       document.removeEventListener('mousemove', editor.handleMouseMove);
       document.addEventListener('mousemove', this.handleMouseMove);
@@ -60,8 +59,42 @@ class Transformable {
      * 单个拖拽实例鼠标移动时调用editor实例的clearRect方法
      * 只清除自身
      */
-    const movex = this.coordinate.x - (this.clientx - e.clientX);
-    const movey = this.coordinate.y - (this.clienty - e.clientY);
+    let movex = this.coordinate.x - (this.clientx - e.clientX);
+    let movey = this.coordinate.y - (this.clienty - e.clientY);
+
+    /**
+     * 拖动时自动吸附以及辅助线
+     */
+    const { contX, contY, contWidth, contHeight } = this.editor;
+
+    if (movex <= contX + 5) {
+      movex = contX;
+      this.editor.storkeLine('left');
+    } else {
+      this.editor.clearStorke('left');
+    }
+
+    if (movex + this.width >= editor.contWidth + contX - 5) {
+      movex = editor.contWidth + contX - this.width;
+      this.editor.storkeLine('right');
+    } else {
+      this.editor.clearStorke('right');
+    }
+
+    if (movey <= contY + 5) {
+      movey = contY;
+      this.editor.storkeLine('top');
+    } else {
+      this.editor.clearStorke('top');
+    }
+    
+    if (movey + this.height >= editor.contHeight + contY - 5) {
+      movey = editor.contHeight + contY - this.height;
+      this.editor.storkeLine('bottom');
+    } else {
+      this.editor.clearStorke('bottom');
+    }
+
     this.editor._publish('update', {id: this.id, movex, movey});
     this.editor._publish('change', Object.assign({}, this, { moveX: movex, moveY: movey }));
     document.addEventListener('mouseup', () => {
@@ -72,13 +105,34 @@ class Transformable {
       document.removeEventListener('mousemove', this.handleMouseMove);
     });
   }
-  
-  /**
-   * 
-   * @param {*object} data 
-   * 移动时自动调用的回调函数 用于清除画布
-   */
-  handleClearRect(data) {
-    this.editor.handleClearRect(data);
+
+  strokeDash() {
+    drawDashRect(
+      this.ctx,
+      this.moveX,
+      this.moveY,
+      this.moveX + this.width,
+      this.moveY,
+      this.moveX + this.width,
+      this.moveY + this.height,
+      this.moveX,
+      this.moveY + this.height,
+      'rgba(227,212,169,1)',
+    );
+  }
+
+  clearDash() {
+    drawDashRect(
+      this.ctx,
+      this.moveX,
+      this.moveY,
+      this.moveX + this.width,
+      this.moveY,
+      this.moveX + this.width,
+      this.moveY + this.height,
+      this.moveX,
+      this.moveY + this.height,
+      '#FFF',
+    );
   }
 }
