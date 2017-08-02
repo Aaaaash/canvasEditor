@@ -21,7 +21,6 @@ class Editor {
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
-    this.handleClearRect = this.handleClearRect.bind(this);
     this.handleNewInstantiation = this.handleNewInstantiation.bind(this);
     this.handleUpdateInstantiation = this.handleUpdateInstantiation.bind(this);
   }
@@ -114,13 +113,6 @@ class Editor {
     } else {
       this.watchers = {};
     }
-  }
-
-  handleClearRect(instance) {
-    // 接收到正在移动的图片实例对象
-    // 清除画布
-    // console.log(this.instantiation);
-    // this.contCtx.clearRect(this.contX, this.contY, this.contWidth, this.contHeight);
   }
 
   /**

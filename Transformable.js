@@ -12,6 +12,7 @@ class Transformable {
     this.moveX = coordinate.x;
     this.moveY = coordinate.y;
     this.id = guid();
+    this.onChange = null;
 
     this._init = this._init.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -44,6 +45,7 @@ class Transformable {
       &&
       (this.clienty >= coordinate.y && this.clienty <= image.height * scale + coordinate.y)) {
       this.editor._subscribe('move', this.handleClearRect);
+      this.editor._subscribe('change', this.onChange);
       document.removeEventListener('mousemove', editor.handleMouseMove);
       document.addEventListener('mousemove', this.handleMouseMove);
     }
@@ -60,17 +62,12 @@ class Transformable {
      */
     const movex = this.coordinate.x - (this.clientx - e.clientX);
     const movey = this.coordinate.y - (this.clienty - e.clientY);
-    this.editor._publish('move', this);
     this.editor._publish('update', {id: this.id, movex, movey});
-    // this.ctx.clearRect(this.coordinate.x, this.coordinate.y, image.width * this.scale, image.height * this.scale);
-    // this.ctx.clearRect(movex, movey, image.width * this.scale, image.height * this.scale);
-    // this.ctx.drawImage(image, movex, movey, image.width * this.scale, image.height * this.scale);
-    // this.ctx.strokeStyle = 'rgba(227,212,169,0.5)';
-    // this.ctx.strokeRect(movex, movey, image.width * this.scale, image.height * this.scale);
+    this.editor._publish('change', Object.assign({}, this, { moveX: movex, moveY: movey }));
     document.addEventListener('mouseup', () => {
       this.coordinate.x = movex;
       this.coordinate.y = movey;
-      this.editor.ubsubscribe('move', this.handleClearRect);
+      this.editor.ubsubscribe('change');
       this.wrapper.addEventListener('mousedown', this.editor.handleMouseDown);
       document.removeEventListener('mousemove', this.handleMouseMove);
     });

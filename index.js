@@ -32,4 +32,9 @@ images.forEach((v, i) => {
   image.src = v;
   const tranable = new Transformable(contentCanvas, image, { x: 100 + 100 * i, y: 100 }, 0.5, wrapperCanvas, editor);
   tranable._init();
+  const title = document.createElement('p');
+  document.body.appendChild(title);
+  tranable.onChange = (val) => {
+    title.innerHTML = `${v}的x: ${val.moveX}-----${v}的y: ${val.moveY}`;
+  }
 });
