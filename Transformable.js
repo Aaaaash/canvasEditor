@@ -60,28 +60,28 @@ class Transformable extends AutoRender {
      * 拖动时自动吸附以及辅助线
      */
     const { contX, contY, contWidth, contHeight } = this.editor;
-    if (movex <= contX + 2) {
+    if (movex <= contX + 10) {
       movex = contX;
       this.editor.storkeLine('left');
     } else {
       this.editor.clearStorke('l');
     }
 
-    if (movex + renderParams.size.width >= editor.contWidth + contX - 2) {
+    if (movex + renderParams.size.width >= editor.contWidth + contX - 10) {
       movex = editor.contWidth + contX - renderParams.size.width;
       this.editor.storkeLine('right');
     } else {
       this.editor.clearStorke('r');
     }
 
-    if (movey <= contY + 2) {
+    if (movey <= contY + 10) {
       movey = contY;
       this.editor.storkeLine('top');
     } else {
       this.editor.clearStorke('t');
     }
-    
-    if (movey + renderParams.size.height >= editor.contHeight + contY - 2) {
+
+    if (movey + renderParams.size.height >= editor.contHeight + contY - 10) {
       movey = editor.contHeight + contY - renderParams.size.height;
       this.editor.storkeLine('bottom');
     } else {
