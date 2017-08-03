@@ -1,14 +1,13 @@
-class Transformable {
+class Transformable extends AutoRender {
   constructor (canvas, image, coordinate, scale, wrapper, editor) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext('2d');
+    super(canvas.getContext('2d'), image, coordinate, scale, wrapper);
+    this.initialPosition = coordinate;
     this.image = image;
-    this.coordinate = coordinate;
     this.scale = scale;
     this.wrapper = wrapper;
     this.editor = editor;
-    this.moveX = coordinate.x;
-    this.moveY = coordinate.y;
+    this.movex = null;
+    this.movey = null;
     this.clientx = null;
     this.clienty = null;
     this.width = null;
@@ -22,14 +21,10 @@ class Transformable {
   }
 
   _init() {
-    this.image.onload = () => {
-      const { x, y } = this.coordinate;
-      this.ctx.drawImage(this.image, x, y, this.image.width * this.scale, this.image.height * this.scale);
-      this.width = this.image.width * this.scale;
-      this.height = this.image.height * this.scale;
+    this.render(null, null, (distance) => {
       this.wrapper.addEventListener('mousedown', this.handleMouseDown);
-      this.editor._publish('new', this);
-    }
+      this.editor._publish('new', distance);
+    });
   }
 
   /**
@@ -37,13 +32,13 @@ class Transformable {
    * @param {*object} e 拖拽图片鼠标点击事件 
    */
   handleMouseDown(e) {
-    const { coordinate, scale, editor, image } = this;
+    const { initialPosition, scale, editor, image, renderParams } = this;
     this.clientx = e.clientX;
     this.clienty = e.clientY;
     if (
-      (this.clientx >= coordinate.x && this.clientx <= image.width * scale + coordinate.x)
+      (this.clientx >= renderParams.position.x && this.clientx <= renderParams.size.width + renderParams.position.x)
       &&
-      (this.clienty >= coordinate.y && this.clienty <= image.height * scale + coordinate.y)) {
+      (this.clienty >= renderParams.position.y && this.clienty <= renderParams.size.height + renderParams.position.y)) {
       this.editor._subscribe('change', this.onChange);
       document.removeEventListener('mousemove', editor.handleMouseMove);
       document.addEventListener('mousemove', this.handleMouseMove);
@@ -59,37 +54,37 @@ class Transformable {
      * 单个拖拽实例鼠标移动时调用editor实例的clearRect方法
      * 只清除自身
      */
-    let movex = this.coordinate.x - (this.clientx - e.clientX);
-    let movey = this.coordinate.y - (this.clienty - e.clientY);
+    const { initialPosition, renderParams } = this;
+    let movex = initialPosition.x - (this.clientx - e.clientX);
+    let movey = initialPosition.y - (this.clienty - e.clientY);
 
     /**
      * 拖动时自动吸附以及辅助线
      */
     const { contX, contY, contWidth, contHeight } = this.editor;
-
-    if (movex <= contX + 5) {
+    if (movex <= contX + 2) {
       movex = contX;
       this.editor.storkeLine('left');
     } else {
       this.editor.clearStorke('left');
     }
 
-    if (movex + this.width >= editor.contWidth + contX - 5) {
-      movex = editor.contWidth + contX - this.width;
+    if (movex + renderParams.size.width >= editor.contWidth + contX - 2) {
+      movex = editor.contWidth + contX - renderParams.size.width;
       this.editor.storkeLine('right');
     } else {
       this.editor.clearStorke('right');
     }
 
-    if (movey <= contY + 5) {
+    if (movey <= contY + 2) {
       movey = contY;
       this.editor.storkeLine('top');
     } else {
       this.editor.clearStorke('top');
     }
     
-    if (movey + this.height >= editor.contHeight + contY - 5) {
-      movey = editor.contHeight + contY - this.height;
+    if (movey + renderParams.size.height >= editor.contHeight + contY - 2) {
+      movey = editor.contHeight + contY - renderParams.size.height;
       this.editor.storkeLine('bottom');
     } else {
       this.editor.clearStorke('bottom');
@@ -98,8 +93,8 @@ class Transformable {
     this.editor._publish('update', {id: this.id, movex, movey});
     this.editor._publish('change', Object.assign({}, this, { moveX: movex, moveY: movey }));
     document.addEventListener('mouseup', () => {
-      this.coordinate.x = movex;
-      this.coordinate.y = movey;
+      this.renderParams.position.x = movex;
+      this.renderParams.position.y = movey;
       this.editor.ubsubscribe('change');
       this.wrapper.addEventListener('mousedown', this.editor.handleMouseDown);
       document.removeEventListener('mousemove', this.handleMouseMove);
@@ -109,14 +104,14 @@ class Transformable {
   strokeDash() {
     drawDashRect(
       this.ctx,
-      this.moveX,
-      this.moveY,
-      this.moveX + this.width,
-      this.moveY,
-      this.moveX + this.width,
-      this.moveY + this.height,
-      this.moveX,
-      this.moveY + this.height,
+      this.renderParams.position.x,
+      this.renderParams.position.y,
+      this.renderParams.position.x + this.renderParams.size.width,
+      this.renderParams.position.y,
+      this.renderParams.position.x + this.renderParams.size.width,
+      this.renderParams.position.y + this.renderParams.size.height,
+      this.renderParams.position.x,
+      this.renderParams.position.y + this.renderParams.size.height,
       'rgba(227,212,169,1)',
     );
   }
@@ -124,14 +119,14 @@ class Transformable {
   clearDash() {
     drawDashRect(
       this.ctx,
-      this.moveX,
-      this.moveY,
-      this.moveX + this.width,
-      this.moveY,
-      this.moveX + this.width,
-      this.moveY + this.height,
-      this.moveX,
-      this.moveY + this.height,
+      this.renderParams.position.x,
+      this.renderParams.position.y,
+      this.renderParams.position.x + this.renderParams.size.width,
+      this.renderParams.position.y,
+      this.renderParams.position.x + this.renderParams.size.width,
+      this.renderParams.position.y + this.renderParams.size.height,
+      this.renderParams.position.x,
+      this.renderParams.position.y + this.renderParams.size.height,
       '#FFF',
     );
   }

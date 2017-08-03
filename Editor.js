@@ -135,10 +135,10 @@ class Editor extends MouseEnterArea {
     contCtx.fillRect(contX, contY, contWidth, contHeight);
     instantiation.map((v) => {
       if (v.id === id) {
-        v.moveX = movex;
-        v.moveY = movey;
+        v.movex = movex;
+        v.movey = movey;
       }
-      contCtx.drawImage(v.image, v.moveX, v.moveY, v.image.width * v.scale, v.image.height * v.scale);
+      v.render(v.movex, v.movey, null);
     });
   }
 

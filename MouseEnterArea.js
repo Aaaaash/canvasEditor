@@ -8,9 +8,9 @@ class MouseEnterArea {
     const y = e.clientY;
     this.instantiation.map((v) => {
       if (
-        (x >= v.moveX && x <= v.image.width * v.scale + v.moveX)
+        (x >= v.renderParams.position.x && x <= v.renderParams.size.width + v.renderParams.position.x)
       &&
-      (y >= v.moveY && y <= v.image.height * v.scale + v.moveY)
+      (y >= v.renderParams.position.y && y <= v.renderParams.size.height + v.renderParams.position.y)
       ) {
         v.strokeDash();
       } else {
