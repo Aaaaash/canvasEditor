@@ -53,6 +53,57 @@ class Editor extends MouseEnterArea {
     wrapper.addEventListener('mousedown', this.handleMouseDown);
     this._subscribe('new', this.handleNewInstantiation);
     this._subscribe('update', this.handleUpdateInstantiation);
+
+    /**
+     * 初始化辅助线
+     */
+    const container = this.wrapper.parentNode;
+    const lineL = document.createElement('p');
+    const lineR = document.createElement('p');
+    const lineT = document.createElement('p');
+    const lineB = document.createElement('p');
+    lineL.setAttribute('class', 'line');
+    lineL.setAttribute('id', 'linel');
+    lineR.setAttribute('class', 'line');
+    lineR.setAttribute('id', 'liner');
+    lineT.setAttribute('class', 'line');
+    lineT.setAttribute('id', 'linet');
+    lineB.setAttribute('class', 'line');
+    lineB.setAttribute('id', 'lineb');
+
+    container.appendChild(lineL);
+    container.appendChild(lineR);
+    container.appendChild(lineT);
+    container.appendChild(lineB);
+
+    const lines = document.querySelectorAll('.line');
+    lines.forEach((v) => {
+      const id = v.getAttribute('id');
+      if (id === 'linel') {
+        v.style.width = '1px';
+        v.style.height = '100%';
+        v.style.left = `${this.wrapWidth / 2 - this.contWidth / 2}px`;
+      }
+      if (id === 'liner') {
+        v.style.width = '1px';
+        v.style.height = '100%';
+        v.style.left = `${this.contWidth + (this.wrapWidth - this.contWidth) / 2}px`;
+      }
+      if (id === 'linet') {
+        v.style.width = '100%';
+        v.style.height = '1px';
+        v.style.top = `${this.wrapHeight / 2 - this.contHeight / 2}px`;
+      }
+      if (id === 'lineb') {
+        v.style.width = '100%';
+        v.style.height = '1px';
+        v.style.top = `${this.wrapHeight / 2 + this.contHeight / 2}px`;
+      }
+      v.style.backgroundColor = '#FF004F';
+      v.style.position = 'absolute';
+      v.style.zIndex = 2;
+      v.style.display = 'none';
+    });
   }
 
   /**
@@ -149,35 +200,29 @@ class Editor extends MouseEnterArea {
     wrapCtx.lineWidth = 1;
     switch (direction) {
       case 'left':
-        wrapCtx.beginPath();
-        wrapCtx.moveTo(wrapWidth / 2 - contWidth / 2, 0);
-        wrapCtx.lineTo(wrapWidth / 2 - contWidth / 2, wrapHeight);
-        wrapCtx.stroke();
+        document.querySelector('#linel').style.display = 'block';
         break;
       case 'right':
-        wrapCtx.beginPath();
-        wrapCtx.moveTo(contWidth + (wrapWidth - contWidth) / 2, 0);
-        wrapCtx.lineTo(contWidth + (wrapWidth - contWidth) / 2, wrapHeight);
-        wrapCtx.stroke();
+        document.querySelector('#liner').style.display = 'block';
         break;
       case 'top':
-        wrapCtx.beginPath();
-        wrapCtx.moveTo(0, wrapHeight / 2 - contHeight / 2);
-        wrapCtx.lineTo(wrapWidth, wrapHeight / 2 - contHeight / 2);
-        wrapCtx.stroke();
+        document.querySelector('#linet').style.display = 'block';
         break;
       case 'bottom':
-        wrapCtx.beginPath();
-        wrapCtx.moveTo(0, wrapHeight / 2 + contHeight / 2);
-        wrapCtx.lineTo(wrapWidth, wrapHeight / 2 + contHeight / 2);
-        wrapCtx.stroke();
+        document.querySelector('#lineb').style.display = 'block';
         break;
       default:
         return;
     }
   }
 
-  clearStorke(direction) {
-    this.storkeLine(direction, '#DCDCDC');
+  clearStorke(dis) {
+    if (dis !== undefined) {
+      document.querySelector(`#line${dis}`).style.display = 'none';
+    } else {
+      document.querySelectorAll('.line').forEach((v) => {
+        v.style.display = 'none';
+      });
+    }
   }
 }

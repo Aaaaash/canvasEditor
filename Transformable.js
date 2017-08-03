@@ -10,8 +10,6 @@ class Transformable extends AutoRender {
     this.movey = null;
     this.clientx = null;
     this.clienty = null;
-    this.width = null;
-    this.height = null;
     this.onChange = null;
     this.id = guid();
 
@@ -66,28 +64,28 @@ class Transformable extends AutoRender {
       movex = contX;
       this.editor.storkeLine('left');
     } else {
-      this.editor.clearStorke('left');
+      this.editor.clearStorke('l');
     }
 
     if (movex + renderParams.size.width >= editor.contWidth + contX - 2) {
       movex = editor.contWidth + contX - renderParams.size.width;
       this.editor.storkeLine('right');
     } else {
-      this.editor.clearStorke('right');
+      this.editor.clearStorke('r');
     }
 
     if (movey <= contY + 2) {
       movey = contY;
       this.editor.storkeLine('top');
     } else {
-      this.editor.clearStorke('top');
+      this.editor.clearStorke('t');
     }
     
     if (movey + renderParams.size.height >= editor.contHeight + contY - 2) {
       movey = editor.contHeight + contY - renderParams.size.height;
       this.editor.storkeLine('bottom');
     } else {
-      this.editor.clearStorke('bottom');
+      this.editor.clearStorke('b');
     }
 
     this.editor._publish('update', {id: this.id, movex, movey});
@@ -96,6 +94,7 @@ class Transformable extends AutoRender {
       this.renderParams.position.x = movex;
       this.renderParams.position.y = movey;
       this.editor.ubsubscribe('change');
+      this.editor.clearStorke();
       this.wrapper.addEventListener('mousedown', this.editor.handleMouseDown);
       document.removeEventListener('mousemove', this.handleMouseMove);
     });
